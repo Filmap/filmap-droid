@@ -8,9 +8,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 
@@ -49,6 +51,8 @@ public class SignInActivity extends AppCompatActivity {
 
                     if (mainObject.has("token")) {
                         String token = mainObject.getString("token");
+                        String email = mainObject.getString("email");
+                        String name = mainObject.getString("name");
 
                         System.out.println(token);
 
@@ -56,6 +60,8 @@ public class SignInActivity extends AppCompatActivity {
                         SharedPreferences sharedPref = getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("token", token);
+                        editor.putString("name", name);
+                        editor.putString("email", email);
                         editor.commit();
 
                         if (sharedPref.contains("token")) {
@@ -65,7 +71,7 @@ public class SignInActivity extends AppCompatActivity {
                             finish();
                         }
 
-                        showMessage(token);
+                        //showMessage(token);
 
                     } else {
 
