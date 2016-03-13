@@ -1,4 +1,4 @@
-package com.filmap.filmap;
+package com.filmap.filmap.rest;
 
 import com.loopj.android.http.*;
 import cz.msebera.android.httpclient.Header;
