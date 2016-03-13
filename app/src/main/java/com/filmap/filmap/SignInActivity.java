@@ -9,10 +9,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import com.filmap.filmap.rest.FilmapRestClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 
@@ -59,6 +61,8 @@ public class SignInActivity extends AppCompatActivity {
 
                     if (mainObject.has("token")) {
                         String token = mainObject.getString("token");
+                        String email = mainObject.getString("email");
+                        String name = mainObject.getString("name");
 
                         Log.i(TAG, token);
 
@@ -66,6 +70,8 @@ public class SignInActivity extends AppCompatActivity {
                         SharedPreferences sharedPref = getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("token", token);
+                        editor.putString("name", name);
+                        editor.putString("email", email);
                         editor.apply();
 
                         if (sharedPref.contains("token")) {
@@ -76,14 +82,13 @@ public class SignInActivity extends AppCompatActivity {
                         }
 
                         showMessage("Welcome!");
-
-                    }
+                        //showMessage(token);
+                    } 
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     Log.i(TAG, "Connection error");
                     showMessage("Connection error. Please make sure you have an active internet connection and try again.");
                 }
-
             }
 
             @Override

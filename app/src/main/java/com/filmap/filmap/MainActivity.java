@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,11 +16,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private TextView navHeaderName;
+    private TextView navHeaderEmail;
+    private ImageView ivGravatar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +56,20 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        View header = navigationView.getHeaderView(0);
+
+        navHeaderName = (TextView) header.findViewById(R.id.navHeaderName);
+        navHeaderEmail = (TextView) header.findViewById(R.id.navHeaderEmail);
+        ivGravatar = (ImageView) header.findViewById(R.id.ivGravatar);
+
+        //navHeaderEmail.setText("email@goeshere.com");
+
+        //setContentView(R.layout.activity_main);
+
+
+        //navHeaderName.setText("Name");
+
+       // Log.d("PROPRETIES", "PROPRETIES");
     }
 
     @Override
@@ -60,7 +84,19 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, SignInActivity.class);
             startActivity(intent);
         } else {
-            System.out.println("WE HAS A TOKENS! IUUUPIIII!");
+            // handle displaying profile and gravatar stuff
+            String name = sharedPref.getString("name", "");
+            String email = sharedPref.getString("email", "").toLowerCase();
+
+            navHeaderEmail.setText(email);
+            navHeaderName.setText(name);
+
+            String hash = MD5Util.md5(email.trim());
+
+            System.out.println(hash);
+
+            Picasso.with(this).load("http://www.gravatar.com/avatar/" + hash + "?s=400").into(ivGravatar);
+            System.out.println("WE HAS A TOKENS!");
         }
     }
 
@@ -102,18 +138,14 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_near_me) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
+        } else if (id == R.id.nav_search) {
+            // Search for a movie
+        } else if (id == R.id.nav_my_list) {
+            // Display user's list
         } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+            // Settings
         } else if (id == R.id.nav_sign_out) {
             // remove token and show login screen
             System.out.println("SIGNING OUT");
@@ -123,6 +155,8 @@ public class MainActivity extends AppCompatActivity
             SharedPreferences.Editor editor = sharedPref.edit();
 
             editor.remove("token");
+            editor.remove("name");
+            editor.remove("email");
             editor.commit();
 
             if (! sharedPref.contains("token")) {

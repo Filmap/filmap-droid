@@ -17,6 +17,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textAlignment="center"
         android:text="@string/app_name"
+        android:layout_marginTop="75dp"
         android:id="@+id/textView" />
 
     <EditText
@@ -25,7 +26,7 @@
         android:inputType="textEmailAddress"
         android:ems="10"
         android:id="@+id/etEmail"
-        android:layout_marginTop="49dp"
+        android:layout_marginTop="75dp"
         android:hint="@string/email_input" />
 
     <EditText
@@ -64,8 +65,10 @@
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="gone" />
+
     <TextView
         android:id="@+id/response"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
 </LinearLayout>
