@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Filmap</string>
-    <string name="email_input">Email</string>
-    <string name="password_input">Senha</string>
-    <string name="input_signin">Entrar</string>
-    <string name="condition_or">ou</string>
-    <string name="register_button">Registrar</string>
+    <string name="email_input">E-mail</string>
+    <string name="password_input">Password</string>
+    <string name="input_signin">Sign In</string>
+    <string name="condition_or">or</string>
+    <string name="register_button">Register</string>
+    <string name="name_input">Name</string>
+    <string name="password_confirmation_input">Confirm password</string>
 </resources>

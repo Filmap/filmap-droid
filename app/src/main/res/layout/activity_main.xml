@@ -11,7 +11,6 @@
     tools:context="com.filmap.filmap.MainActivity"
     >
 
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +24,7 @@
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
-        android:id="@+id/editText"
+        android:id="@+id/etEmail"
         android:layout_marginTop="49dp"
         android:hint="@string/email_input" />
 
@@ -34,14 +33,15 @@
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:ems="10"
-        android:id="@+id/editText2"
+        android:id="@+id/etPassword"
         android:hint="@string/password_input" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/input_signin"
-        android:id="@+id/button" />
+        android:id="@+id/btnSignIn"
+        android:onClick="signInClick"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -55,7 +55,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/register_button"
-        android:id="@+id/button2" />
+        android:id="@+id/btnRegister"
+        android:onClick="registerClick"/>
     
     <ProgressBar
         android:id="@+id/progressBar"

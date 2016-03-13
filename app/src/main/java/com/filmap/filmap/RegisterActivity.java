@@ -1,7 +1,6 @@
 package com.filmap.filmap;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -14,28 +13,37 @@ import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 
-public class MainActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
+    private EditText etName;
     private EditText etEmail;
     private EditText etPassword;
+    private EditText etPasswordConfirmation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_register);
 
+        etName = (EditText) findViewById(R.id.etName);
         etEmail = (EditText) findViewById(R.id.etEmail);
         etPassword = (EditText) findViewById(R.id.etPassword);
+        etPasswordConfirmation = (EditText) findViewById(R.id.etPasswordConfirmation);
     }
 
-    public void signInClick(View v) {
+    public void registerClick(View view) {
+        // Do stuff to register user
+
         // Set post params
         RequestParams params = new RequestParams();
+        params.put("name", etName.getText());
         params.put("email", etEmail.getText());
         params.put("password", etPassword.getText());
+        params.put("password_confirmation", etPasswordConfirmation.getText());
 
         // Make a post request to authenticate
-        FilmapRestClient.post("authenticate", params, new TextHttpResponseHandler() {
+        FilmapRestClient.post("user", params, new TextHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, String res) {
                 // Called when response HTTP status is "200 OK"
@@ -43,17 +51,19 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     JSONObject mainObject = new JSONObject(res);
 
-                    if (mainObject.has("token")) {
-                        String token = mainObject.getString("token");
+                    if (mainObject.has("response")) {
+                        Boolean response = mainObject.getBoolean("response");
 
-                        System.out.println(token);
-
-                        showMessage(token);
+                        if(response == true) {
+                            showMessage("Success! You can now Sign In.");
+                            finish();
+                        } else {
+                            showMessage(res);
+                        }
 
                     } else {
 
-                        showMessage("Invalid credentials. Please try again.");
-
+                        showMessage(res);
                     }
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
@@ -68,17 +78,13 @@ public class MainActivity extends AppCompatActivity {
                 // called when response HTTP status is "4XX" (eg. 401, 403, 404)
             }
         });
-
-
     }
 
-    public void registerClick(View v) {
-        //System.out.println("register");
-
-        // Start RegisterActivity
-        Intent intent = new Intent(this, RegisterActivity.class);
-        startActivity(intent);
+    public void signInClick(View v) {
+        // Go back to the sign in screen
+        finish();
     }
+
 
     public void showMessage(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -88,6 +94,4 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
-
 }
