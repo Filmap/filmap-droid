@@ -7,4 +7,11 @@
     <string name="register_button">Register</string>
     <string name="name_input">Name</string>
     <string name="password_confirmation_input">Confirm password</string>
+    <string name="title_activity_filmap">FilmapActivity</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 </resources>

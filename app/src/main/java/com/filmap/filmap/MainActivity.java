@@ -1,93 +1,144 @@
 package com.filmap.filmap;
 
-import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.view.View;
-import android.widget.EditText;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
 
-import com.loopj.android.http.RequestParams;
-import com.loopj.android.http.TextHttpResponseHandler;
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
-
-public class MainActivity extends AppCompatActivity {
-
-    private EditText etEmail;
-    private EditText etPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        etEmail = (EditText) findViewById(R.id.etEmail);
-        etPassword = (EditText) findViewById(R.id.etPassword);
-    }
-
-    public void signInClick(View v) {
-        // Set post params
-        RequestParams params = new RequestParams();
-        params.put("email", etEmail.getText());
-        params.put("password", etPassword.getText());
-
-        // Make a post request to authenticate
-        FilmapRestClient.post("authenticate", params, new TextHttpResponseHandler() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, String res) {
-                // Called when response HTTP status is "200 OK"
-
-                try {
-                    JSONObject mainObject = new JSONObject(res);
-
-                    if (mainObject.has("token")) {
-                        String token = mainObject.getString("token");
-
-                        System.out.println(token);
-
-                        showMessage(token);
-
-                    } else {
-
-                        showMessage("Invalid credentials. Please try again.");
-
-                    }
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-
-                    showMessage("Connection error. Please make sure you have an active internet connection and try again.");
-                }
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
 
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
     }
 
-    public void registerClick(View v) {
-        //System.out.println("register");
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-        // Start RegisterActivity
-        Intent intent = new Intent(this, RegisterActivity.class);
-        startActivity(intent);
+        SharedPreferences sharedPref = getSharedPreferences(SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE);
+
+        // verify if the user is logged in, if not, call sign in activity
+        if (! sharedPref.contains("token")) {
+            System.out.println("CAN I HAS TOKEN PLZ!");
+            Intent intent = new Intent(this, SignInActivity.class);
+            startActivity(intent);
+        } else {
+            System.out.println("WE HAS A TOKENS! IUUUPIIII!");
+        }
     }
 
-    public void showMessage(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.app_name);
-        builder.setPositiveButton("OK", null);
-        builder.setMessage(message);
-        AlertDialog dialog = builder.create();
-        dialog.show();
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        } else if (id == R.id.nav_sign_out) {
+            // remove token and show login screen
+            System.out.println("SIGNING OUT");
+
+            // Remove token from shared preferences.
+            SharedPreferences sharedPref = getSharedPreferences(SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+
+            editor.remove("token");
+            editor.commit();
+
+            if (! sharedPref.contains("token")) {
+                System.out.println("CAN I HAS TOKEN PLZ!");
+                Intent intent = new Intent(this, SignInActivity.class);
+                startActivity(intent);
+            } else {
+                System.out.println("WE HAS A TOKENS! IUUUPIIII!");
+
+            }
+
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
 }
