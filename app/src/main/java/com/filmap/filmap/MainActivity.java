@@ -29,10 +29,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import layout.FilmsFragment;
+import layout.SearchFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        FilmsFragment.OnFragmentInteractionListener {
+        FilmsFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
 
     private TextView navHeaderName;
     private TextView navHeaderEmail;
@@ -158,13 +159,21 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_search) {
             // Search for a movie
+            /*
             Intent intent = new Intent(this, MovieActivity.class);
             intent.putExtra("omdbid", "tt0892769");
-            startActivity(intent);
+            startActivity(intent);*/
+
+            SearchFragment searchFragment = new SearchFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, searchFragment).commit();
+
         } else if (id == R.id.nav_my_list) {
+
             FilmsFragment filmsFragment = new FilmsFragment();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, filmsFragment).commit();
+
         } else if (id == R.id.nav_manage) {
             // Settings
         } else if (id == R.id.nav_sign_out) {
@@ -201,4 +210,10 @@ public class MainActivity extends AppCompatActivity
     public void onFilmsFragmentInteraction(Uri uri) {
 
     }
+
+    @Override
+    public void onSearchFragmentInteraction(Uri uri) {
+
+    }
+
 }

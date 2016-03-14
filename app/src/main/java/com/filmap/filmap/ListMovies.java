@@ -38,32 +38,10 @@ public class ListMovies extends AppCompatActivity {
         setContentView(R.layout.activity_list_movies);
 
         listView = (ListView) findViewById(R.id.listView);
-
         etSearch = (EditText) findViewById(R.id.etSearch);
 
-        /*OMDBFilm film = new OMDBFilm();
-        film.setTitle("How I Mey Your Mother");
-        film.setYear("2005-2014");
-        film.setPoster("http://ia.media-imdb.com/images/M/MV5BMTA5MzAzNTcyNjZeQTJeQWpwZ15BbWU3MDUyMzE1MTk@._V1_SX300.jpg");
-        */
-
-
         ArrayList<OMDBFilm> filmsArray = new ArrayList<OMDBFilm>();
-
-        //filmsArray.add(film);
-
         adapter = new OMDBFilmsAdapter(this, filmsArray);
-
-
-        /*OMDBFilm film2 = new OMDBFilm();
-        film2.setTitle("Friends");
-        film2.setYear("1994-2004");
-        film2.setPoster("http://ia.media-imdb.com/images/M/MV5BMTg4NzEyNzQ5OF5BMl5BanBnXkFtZTYwNTY3NDg4._V1._CR24,0,293,443_SX89_AL_.jpg_V1_SX300.jpg");
-
-        adapter.add(film2);*/
-
-        //searchMovies("house");
-
         listView.setAdapter(adapter);
 
         etSearch.addTextChangedListener(new TextWatcher() {
