@@ -1,8 +1,11 @@
 package com.filmap.filmap;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,13 +22,17 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.filmap.filmap.utils.MD5Util;
 import com.squareup.picasso.Picasso;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import layout.FilmsFragment;
+
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        FilmsFragment.OnFragmentInteractionListener {
 
     private TextView navHeaderName;
     private TextView navHeaderEmail;
@@ -73,10 +80,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
-        SharedPreferences sharedPref = getSharedPreferences(SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = getSharedPreferences(SignInActivity.SETTINGS_NAME,
+                Context.MODE_PRIVATE);
 
         // verify if the user is logged in, if not, call sign in activity
         if (! sharedPref.contains("token")) {
@@ -95,7 +108,8 @@ public class MainActivity extends AppCompatActivity
 
             System.out.println(hash);
 
-            Picasso.with(this).load("http://www.gravatar.com/avatar/" + hash + "?s=400").into(ivGravatar);
+            Picasso.with(this).load("http://www.gravatar.com/avatar/" + hash + "?s=400").
+                    into(ivGravatar);
             System.out.println("WE HAS A TOKENS!");
         }
     }
@@ -143,7 +157,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_search) {
             // Search for a movie
         } else if (id == R.id.nav_my_list) {
-            // Display user's list
+            FilmsFragment filmsFragment = new FilmsFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, filmsFragment).commit();
         } else if (id == R.id.nav_manage) {
             // Settings
         } else if (id == R.id.nav_sign_out) {
@@ -174,5 +190,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onFilmsFragmentInteraction(Uri uri) {
+
     }
 }

@@ -5,39 +5,39 @@ package com.filmap.filmap.models;
  */
 
 public class FilmapFilm {
-    private long id;
-    private long omdb;
-    private long user_id;
+    private String id;
+    private String omdb;
+    private String user_id;
     private boolean watched;
 
-    public FilmapFilm(long id, long omdb, long user_id, boolean watched) {
+    public FilmapFilm(String id, String omdb, String user_id, boolean watched) {
         this.id = id;
         this.omdb = omdb;
         this.user_id = user_id;
         this.watched = watched;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public long getOmdb() {
+    public String getOmdb() {
         return omdb;
     }
 
-    public void setOmdb(long omdb) {
+    public void setOmdb(String omdb) {
         this.omdb = omdb;
     }
 
-    public long getUser_id() {
+    public String getUser_id() {
         return user_id;
     }
 
-    public void setUser_id(long user_id) {
+    public void setUser_id(String user_id) {
         this.user_id = user_id;
     }
 
