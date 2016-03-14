@@ -1,4 +1,4 @@
-package com.filmap.filmap;
+package com.filmap.filmap.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

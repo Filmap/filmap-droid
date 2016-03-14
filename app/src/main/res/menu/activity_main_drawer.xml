@@ -5,19 +5,19 @@
         <item
             android:id="@+id/nav_near_me"
             android:icon="@drawable/ic_place_24dp"
-            android:title="Near Me" />
+            android:title="@string/menu_near_me" />
         <item
             android:id="@+id/nav_search"
             android:icon="@drawable/ic_search_24dp"
-            android:title="Search" />
+            android:title="@string/menu_search" />
         <item
             android:id="@+id/nav_my_list"
             android:icon="@drawable/ic_list_24dp"
-            android:title="My List" />
+            android:title="@string/menu_my_list" />
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Settings" />
+            android:title="@string/action_settings" />
     </group>
 
     <!--
@@ -35,12 +35,12 @@
     </item>
     -->
 
-    <item android:title="Exit">
+    <item android:title="@string/menu_exit">
         <menu>
             <item
                 android:id="@+id/nav_sign_out"
                 android:icon="@drawable/ic_exit_to_app_24dp"
-                android:title="Sign Out" />
+                android:title="@string/menu_logout" />
         </menu>
     </item>
 
