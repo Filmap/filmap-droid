@@ -238,7 +238,8 @@ public class FilmsFragment extends Fragment {
                         Log.i(TAG, "Film " + film.getTitle() + " inserted");
                     }
                     Log.i(TAG, "Progress is " + mProgressStatus);
-                    if (mProgressStatus == 100) {
+                    if (mProgressStatus >= 100) {
+                        mProgressStatus = 0;
                         mProgress.setVisibility(View.GONE);
                     }
 
