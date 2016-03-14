@@ -11,7 +11,7 @@ public class OMDBRestClient {
 
 
     // URL for api access.
-    private static final String BASE_URL = "http://www.omdbapi.com/?";
+    private static final String BASE_URL = "http://www.omdbapi.com/";
     private static final String BY_ID = "i";
     private static final String BY_SEARCH = "s";
 

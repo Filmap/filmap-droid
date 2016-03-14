@@ -4,15 +4,15 @@ package com.filmap.filmap.models;
  * Created by duartemac on 2016-03-13.
  */
 public class OMDBFilm {
-    private String  imdbID;
+    private String imdbID;
     private String Title;
-    private String  Genre;
-    private String  Year;
-    private String  Director;
-    private String  Actors;
-    private String  Plot;
-    private String  Poster;
-    private String  imdbRating;
+    private String Genre;
+    private String Year;
+    private String Director;
+    private String Actors;
+    private String Plot;
+    private String Poster;
+    private String imdbRating;
 
     public OMDBFilm(String imdbID, String title, String genre, String year, String director,
                     String actors, String plot, String poster, String imdbRating) {

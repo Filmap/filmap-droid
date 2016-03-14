@@ -142,6 +142,9 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
         } else if (id == R.id.nav_search) {
             // Search for a movie
+            Intent intent = new Intent(this, MovieActivity.class);
+            intent.putExtra("omdbid", "tt0892769");
+            startActivity(intent);
         } else if (id == R.id.nav_my_list) {
             // Display user's list
         } else if (id == R.id.nav_manage) {

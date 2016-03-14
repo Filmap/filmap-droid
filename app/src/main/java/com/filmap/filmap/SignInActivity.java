@@ -95,6 +95,7 @@ public class SignInActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                 Log.i(TAG, "Failure, invalid creds");
 
+                etPassword.setText(""); // Empty the password field.
                 showMessage("Invalid credentials. Please try again.");
             }
         });
