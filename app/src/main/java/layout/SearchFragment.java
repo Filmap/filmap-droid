@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -126,7 +127,7 @@ public class SearchFragment extends Fragment {
 
                 OMDBFilm omdbfilm = (OMDBFilm) listView.getItemAtPosition(position);
 
-                System.out.println(omdbfilm.toString());
+                Log.i("Search", "Go to film " + omdbfilm.toString());
 
                 showMovie(omdbfilm.getImdbID());
             }
@@ -149,6 +150,7 @@ public class SearchFragment extends Fragment {
     }
 
     private void searchMovies(String query) {
+        Log.i("Search", "searchMovies " + query);
 
         ArrayList<OMDBFilm> results;
 
@@ -159,18 +161,19 @@ public class SearchFragment extends Fragment {
             // went wrong...
         };
 
-        OMDBRestClient.post("?s=" + query + "&y=&plot=short&r=json", null, new TextHttpResponseHandler() {
+        OMDBRestClient.searchFilm(query, new TextHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, String res) {
                 // called when response HTTP status is "200 OK"
 
-                System.out.println(res);
+                Log.i("Search", "Response: " + res);
+
 
                 Gson gson = new GsonBuilder().create();
                 // Define Response class to correspond to the JSON response returned
                 OMDBSearchResult omdbSearchResult = gson.fromJson(res, OMDBSearchResult.class);
 
-                System.out.println(omdbSearchResult.getResponse());
+                Log.i("Search", "Response #2: " + omdbSearchResult.getResponse());
 
 
                 if (omdbSearchResult.getResponse().equals("True")) {
@@ -181,8 +184,10 @@ public class SearchFragment extends Fragment {
                     adapter.addAll(omdbSearchResult.getSearch());
 
 
-                    System.out.println(omdbSearchResult.getSearch().get(0).toString());
+                    Log.i("Search", "Film found: " + omdbSearchResult.getSearch().get(0).toString());
 
+                } else {
+                    Log.i("Search", "False response");
                 }
             }
 
