@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -57,6 +58,7 @@ public class SearchFragment extends Fragment {
     ListView listView;
     OMDBFilmsAdapter adapter;
     EditText etSearch;
+    Button btnSearch;
 
     /**
      * Use this factory method to create a new instance of
@@ -98,6 +100,7 @@ public class SearchFragment extends Fragment {
 
         listView = (ListView) view.findViewById(R.id.listView);
         etSearch = (EditText) view.findViewById(R.id.etSearch);
+        btnSearch = (Button) view.findViewById(R.id.btnSearch);
 
         listView.setAdapter(adapter);
 
@@ -128,6 +131,15 @@ public class SearchFragment extends Fragment {
                 showMovie(omdbfilm.getImdbID());
             }
         });
+
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String query = etSearch.getText().toString();
+
+                searchMovies(query);
+            }
+        });
     }
 
     public void showMovie(String omdbid) {
@@ -135,13 +147,6 @@ public class SearchFragment extends Fragment {
         intent.putExtra("omdbid", omdbid);
         startActivity(intent);
     }
-
-    public void btnSearchClick(View v) {
-        String query = etSearch.getText().toString();
-
-        searchMovies(query);
-    }
-
 
     private void searchMovies(String query) {
 

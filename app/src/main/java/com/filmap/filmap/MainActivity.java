@@ -39,6 +39,10 @@ public class MainActivity extends AppCompatActivity
     private TextView navHeaderEmail;
     private ImageView ivGravatar;
 
+    // Fragments
+    FilmsFragment filmsFragment;
+    SearchFragment searchFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,24 +159,30 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_near_me) {
             // Handle the camera action
-            Intent intent = new Intent(this, ListMovies.class);
-            startActivity(intent);
+            //Intent intent = new Intent(this, ListMovies.class);
+            //startActivity(intent);
         } else if (id == R.id.nav_search) {
             // Search for a movie
-            /*
-            Intent intent = new Intent(this, MovieActivity.class);
-            intent.putExtra("omdbid", "tt0892769");
-            startActivity(intent);*/
 
-            SearchFragment searchFragment = new SearchFragment();
+
+            // We have to save the fragment instead of creating a new one every time you go in and out
+            if (searchFragment == null) {
+                searchFragment = new SearchFragment();
+            }
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, searchFragment).commit();
+                    .replace(R.id.fragment_container, searchFragment).commit();
 
         } else if (id == R.id.nav_my_list) {
+            // Use replace instead of add, or it will display all fragments at the same time
+            // And they will overlap each other
 
-            FilmsFragment filmsFragment = new FilmsFragment();
+            if (filmsFragment == null) {
+                filmsFragment = new FilmsFragment();
+            }
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, filmsFragment).commit();
+                    .replace(R.id.fragment_container, filmsFragment).commit();
 
         } else if (id == R.id.nav_manage) {
             // Settings
