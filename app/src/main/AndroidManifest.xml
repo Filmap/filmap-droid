@@ -22,7 +22,8 @@
         </activity>
         <activity android:name=".RegisterActivity" />
         <activity android:name=".SignInActivity" />
-        <activity android:name=".MovieActivity"></activity>
+        <activity android:name=".MovieActivity" />
+        <activity android:name=".ListMovies"></activity>
     </application>
 
 </manifest>
