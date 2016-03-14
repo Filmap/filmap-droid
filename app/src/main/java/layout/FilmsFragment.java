@@ -1,22 +1,29 @@
 package layout;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.filmap.filmap.MainActivity;
+import com.filmap.filmap.MovieActivity;
+import com.filmap.filmap.OMDBFilmsAdapter;
 import com.filmap.filmap.R;
 import com.filmap.filmap.SignInActivity;
 import com.filmap.filmap.models.FilmapFilm;
 import com.filmap.filmap.models.OMDBFilm;
-import com.filmap.filmap.models.OMDBFilmList;
 import com.filmap.filmap.rest.FilmapRestClient;
 import com.filmap.filmap.rest.OMDBRestClient;
 import com.google.gson.Gson;
@@ -25,6 +32,8 @@ import com.loopj.android.http.TextHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -43,7 +52,13 @@ public class FilmsFragment extends Fragment {
     private final String TAG = "FilmsFragment";
 
     private String token;
-    private OMDBFilmList omdbFilmList;
+    private ListView listView;
+    private TextView errorTextView;
+    private OMDBFilmsAdapter adapter;
+
+    private ProgressBar mProgress;
+    private int mProgressStatus = 0;
+    private int mProgressIncrement = 0;
 
     private OnFragmentInteractionListener mListener;
 
@@ -72,10 +87,7 @@ public class FilmsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
 
-            // Get params
-        }
         SharedPreferences sharedPref = this.getActivity().getSharedPreferences(
                 SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE
         );
@@ -84,7 +96,35 @@ public class FilmsFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        omdbFilmList = OMDBFilmList.getInstance();
+        ArrayList<OMDBFilm> filmsArray = new ArrayList<OMDBFilm>();
+        adapter = new OMDBFilmsAdapter(this.getContext(), filmsArray);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        errorTextView = (TextView) view.findViewById(R.id.errorMsgMyFilms);
+        listView = (ListView) view.findViewById(R.id.listMyFilms);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                OMDBFilm omdbfilm = (OMDBFilm) listView.getItemAtPosition(position);
+
+                Log.i("Search", "Go to film " + omdbfilm.toString());
+
+                showMovie(omdbfilm.getImdbID());
+            }
+        });
+    }
+
+    public void showMovie(String omdbid) {
+        Intent intent = new Intent(this.getContext(), MovieActivity.class);
+        intent.putExtra("omdbid", omdbid);
+        startActivity(intent);
     }
 
     @Override
@@ -93,7 +133,8 @@ public class FilmsFragment extends Fragment {
         getFilms();
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_films, container, false);
-        populateView(rootView);
+        mProgress = (ProgressBar) rootView.findViewById(R.id.progressMyFilms);
+
 
         return rootView;
 
@@ -156,11 +197,22 @@ public class FilmsFragment extends Fragment {
                     Log.i(TAG, String.valueOf("Number of results: " + searchResults.length()));
 
                     int length = searchResults.length();
-                    for (int i = 0; i < length; i++) {
-                        JSONObject obj = searchResults.getJSONObject(i);
-                        FilmapFilm film = gson.fromJson(obj.toString(), FilmapFilm.class);
-                        Log.i(TAG, "inserting " + film.getOmdb());
-                        insertFromOMDB(film.getOmdb());
+                    if (length > 0) {
+                        mProgressIncrement = 100 / (length * 2);
+                        for (int i = 0; i < length; i++) {
+                            JSONObject obj = searchResults.getJSONObject(i);
+                            FilmapFilm film = gson.fromJson(obj.toString(), FilmapFilm.class);
+                            Log.i(TAG, "inserting " + film.getOmdb());
+                            mProgressStatus += mProgressIncrement;
+                            mProgress.setProgress(mProgressStatus);
+                            insertFromOMDB(film.getOmdb());
+                        }
+                    } else {
+                        // No films
+                        mProgress.setProgress(100);
+                        mProgress.setVisibility(View.GONE);
+                        errorTextView.setText(getResources().getString(R.string.error_no_films));
+                        errorTextView.setVisibility(View.VISIBLE);
                     }
 
                 } catch (Exception e) {
@@ -177,14 +229,9 @@ public class FilmsFragment extends Fragment {
 //                showMessage("Invalid credentials. Please try again.");
             }
         });
-        Log.i(TAG, "Done fetching, list now");
 
     }
 
-    private void populateView(View rootView) {
-        TextView viewFilms = (TextView) rootView.findViewById(R.id.testFilms);
-        viewFilms.setText(omdbFilmList.toString());
-    }
 
     private void insertFromOMDB(String omdb) {
         OMDBRestClient.getFilm(omdb, new TextHttpResponseHandler() {
@@ -196,10 +243,15 @@ public class FilmsFragment extends Fragment {
                     Log.i(TAG, "Result:  " + obj.toString());
                     if (obj.getString("Response").equals("True")) {
                         OMDBFilm film = gson.fromJson(obj.toString(), OMDBFilm.class);
-                        omdbFilmList.inserir(film);
+                        adapter.add(film);
+                        mProgressStatus += mProgressIncrement;
+                        mProgress.setProgress(mProgressStatus);
                         Log.i(TAG, "Film " + film.getTitle() + " inserted");
                     }
-                    Log.i(TAG, "LIST: " + omdbFilmList.toString());
+                    Log.i(TAG, "Progress is " + mProgressStatus);
+                    if (mProgressStatus == 100) {
+                        mProgress.setVisibility(View.GONE);
+                    }
 
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
