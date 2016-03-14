@@ -63,7 +63,7 @@ public class MovieActivity extends AppCompatActivity {
 
     public void getMovieById(String id) {
 
-        OMDBRestClient.post("?i=" + id + "&y=&plot=short&r=json", null, new TextHttpResponseHandler() {
+        OMDBRestClient.get("i=" + id + "&y=&plot=short&r=json", null, new TextHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, String res) {
                 // called when response HTTP status is "200 OK"

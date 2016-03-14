@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants">
+
+    <ImageView
+        android:id="@+id/ivPoster"
+        android:layout_width="90px"
+        android:layout_height="160px"
+        android:padding="0px"
+        android:layout_marginRight="20px"
+        android:src="@android:drawable/sym_def_app_icon" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            style="@style/TextAppearance.AppCompat.Large" />
+
+        <TextView
+            android:id="@+id/tvYear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Year"
+            android:layout_marginTop="4px"
+            android:layout_marginBottom="4px"
+            style="@style/TextAppearance.AppCompat.Subhead" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Type"
+            android:capitalize="words"
+            android:id="@+id/tvType" />
+
+    </LinearLayout>
+
+</LinearLayout>

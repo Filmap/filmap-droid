@@ -2,18 +2,10 @@ package com.filmap.filmap.models;
 
 /**
  * Created by duartemac on 2016-03-13.
+ * Perfected by ivanilson on 2016-03-14. < lolz
  */
-public class OMDBFilm {
-    private String imdbID;
-    private String Title;
-    private String Genre;
-    private String Year;
-    private String Director;
-    private String Actors;
-    private String Plot;
-    private String Poster;
-    private String imdbRating;
-
+public class OMDBFilm
+{
     public OMDBFilm(String imdbID, String title, String genre, String year, String director,
                     String actors, String plot, String poster, String imdbRating) {
         this.imdbID = imdbID;
@@ -27,77 +19,89 @@ public class OMDBFilm {
         this.imdbRating = imdbRating;
     }
 
-    public String getImdbID() {
-        return imdbID;
-    }
+    public OMDBFilm(){};
 
-    public void setImdbID(String imdbID) {
-        this.imdbID = imdbID;
-    }
+    private String Title;
+    private String Year;
+    private String Rated;
+    private String Released;
+    private String Runtime;
+    private String Genre;
+    private String Director;
+    private String Writer;
+    private String Actors;
+    private String Plot;
+    private String Language;
+    private String Country;
+    private String Awards;
+    private String Poster;
+    private String Metascore;
+    private String imdbRating;
+    private String imdbVotes;
+    private String imdbID;
+    private String Type;
+    private String Response;
 
-    public String getTitle() {
-        return Title;
-    }
 
-    public void setTitle(String title) {
-        Title = title;
-    }
+    public String getTitle() { return this.Title; }
+    public void setTitle(String Title) { this.Title = Title; }
 
-    public String getGenre() {
-        return Genre;
-    }
+    public String getYear() { return this.Year; }
+    public void setYear(String Year) { this.Year = Year; }
 
-    public void setGenre(String genre) {
-        Genre = genre;
-    }
+    public String getRated() { return this.Rated; }
+    public void setRated(String Rated) { this.Rated = Rated; }
 
-    public String getYear() {
-        return Year;
-    }
+    public String getReleased() { return this.Released; }
+    public void setReleased(String Released) { this.Released = Released; }
 
-    public void setYear(String year) {
-        Year = year;
-    }
+    public String getRuntime() { return this.Runtime; }
+    public void setRuntime(String Runtime) { this.Runtime = Runtime; }
 
-    public String getDirector() {
-        return Director;
-    }
+    public String getGenre() { return this.Genre; }
+    public void setGenre(String Genre) { this.Genre = Genre; }
 
-    public void setDirector(String director) {
-        Director = director;
-    }
+    public String getDirector() { return this.Director; }
+    public void setDirector(String Director) { this.Director = Director; }
 
-    public String getActors() {
-        return Actors;
-    }
+    public String getWriter() { return this.Writer; }
+    public void setWriter(String Writer) { this.Writer = Writer; }
 
-    public void setActors(String actors) {
-        Actors = actors;
-    }
+    public String getActors() { return this.Actors; }
+    public void setActors(String Actors) { this.Actors = Actors; }
 
-    public String getPlot() {
-        return Plot;
-    }
+    public String getPlot() { return this.Plot; }
+    public void setPlot(String Plot) { this.Plot = Plot; }
 
-    public void setPlot(String plot) {
-        Plot = plot;
-    }
+    public String getLanguage() { return this.Language; }
+    public void setLanguage(String Language) { this.Language = Language; }
 
-    public String getPoster() {
-        return Poster;
-    }
+    public String getCountry() { return this.Country; }
+    public void setCountry(String Country) { this.Country = Country; }
 
-    public void setPoster(String poster) {
-        Poster = poster;
-    }
+    public String getAwards() { return this.Awards; }
+    public void setAwards(String Awards) { this.Awards = Awards; }
 
-    public String getImdbRating() {
-        return imdbRating;
-    }
+    public String getPoster() { return this.Poster; }
+    public void setPoster(String Poster) { this.Poster = Poster; }
 
-    public void setImdbRating(String imdbRating) {
-        this.imdbRating = imdbRating;
-    }
+    public String getMetascore() { return this.Metascore; }
+    public void setMetascore(String Metascore) { this.Metascore = Metascore; }
+
+    public String getImdbRating() { return this.imdbRating; }
+    public void setImdbRating(String imdbRating) { this.imdbRating = imdbRating; }
+
+    public String getImdbVotes() { return this.imdbVotes; }
+    public void setImdbVotes(String imdbVotes) { this.imdbVotes = imdbVotes; }
+
+    public String getImdbID() { return this.imdbID; }
+    public void setImdbID(String imdbID) { this.imdbID = imdbID; }
+
+    public String getType() { return this.Type; }
+    public void setType(String Type) { this.Type = Type; }
+
+    public String getResponse() { return this.Response; }
+    public void setResponse(String Response) { this.Response = Response; }
 
     @Override
     public String toString() {
