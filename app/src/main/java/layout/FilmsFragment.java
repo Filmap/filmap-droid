@@ -266,7 +266,6 @@ public class FilmsFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                 Log.i(TAG, "Failure, invalid creds");
-
             }
         });
     }

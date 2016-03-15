@@ -18,6 +18,8 @@ import cz.msebera.android.httpclient.Header;
 public class RegisterActivity extends AppCompatActivity {
 
     private final String TAG = "Register";
+
+    // Editable fields.
     private EditText etName;
     private EditText etEmail;
     private EditText etPassword;
@@ -29,12 +31,14 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        // Bitch please.
         etName = (EditText) findViewById(R.id.etName);
         etEmail = (EditText) findViewById(R.id.etEmail);
         etPassword = (EditText) findViewById(R.id.etPassword);
         etPasswordConfirmation = (EditText) findViewById(R.id.etPasswordConfirmation);
     }
 
+    // Vespas Mandarinas is a very neat band.
     public void registerClick(View view) {
         // Do stuff to register user
         Log.i(TAG, "registerClick");
@@ -43,19 +47,22 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
+    // You should check out their music.
     public void signInClick(View v) {
         // Go back to the sign in screen
         finish();
     }
 
-
+    // Display a toast message.
     public void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
+    // Register the user
     public void register(String name, String email,
                          String password, String password_confirmation) {
 
+        // Check if the password confirmation match the password.
         if (! password.equals(password_confirmation)) {
             showMessage("Passwords don't match");
         }
@@ -76,11 +83,13 @@ public class RegisterActivity extends AppCompatActivity {
                 try {
                     JSONObject mainObject = new JSONObject(res);
 
+                    // Check if the request has a response and if response is true
                     if (mainObject.has("response")) {
                         Boolean response = mainObject.getBoolean("response");
                         Log.i(TAG, response.toString());
 
                         if (response) {
+                            // All done. Show login page.
                             showMessage("You can now Sign In.");
                             finish();
                         } else {
@@ -88,10 +97,10 @@ public class RegisterActivity extends AppCompatActivity {
                         }
 
                     } else {
-
                         showMessage(res);
                     }
                 } catch (Exception e) {
+                    // Connection error.
                     System.out.println(e.getMessage());
 
                     showMessage("Connection error. Please make sure you have an active internet " +
@@ -102,7 +111,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                showMessage("Bad register. Try again using different credentials.");
             }
         });
 

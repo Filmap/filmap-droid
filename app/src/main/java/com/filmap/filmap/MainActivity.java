@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity
         navHeaderName = (TextView) header.findViewById(R.id.navHeaderName);
         navHeaderEmail = (TextView) header.findViewById(R.id.navHeaderEmail);
         ivGravatar = (ImageView) header.findViewById(R.id.ivGravatar);
+
     }
 
     @Override
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+            getSupportActionBar().setTitle("Near Me");
         if (id == R.id.nav_near_me) {
             // Show map with nearby movies.
         } else if (id == R.id.nav_search) {
@@ -140,6 +141,7 @@ public class MainActivity extends AppCompatActivity
             }
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, searchFragment).commit();
+            getSupportActionBar().setTitle("Search");
 
         } else if (id == R.id.nav_my_list) {
             // Display the list of movies of the user.
@@ -148,9 +150,10 @@ public class MainActivity extends AppCompatActivity
             }
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, filmsFragment).commit();
-
+            getSupportActionBar().setTitle("My List");
         } else if (id == R.id.nav_manage) {
             // Settings
+            getSupportActionBar().setTitle("Settings");
         } else if (id == R.id.nav_sign_out) {
             doLogout();
         }

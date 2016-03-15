@@ -3,6 +3,9 @@ package com.filmap.filmap;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,6 +50,30 @@ public class MovieActivity extends AppCompatActivity {
     private final String TAG = "MovieActivity"; // For logging.
     private String apiToken; // For api calls.
 
+    // Location...
+    private Double lat;
+    private Double lng;
+
+    // Location listener to update the user's location.
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            //your code here
+            lat = location.getLatitude();
+            lng = location.getLongitude();
+            Log.i(TAG, "Updated location received...");
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+        @Override
+        public void onProviderEnabled(String provider) {}
+
+        @Override
+        public void onProviderDisabled(String provider) {}
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +100,32 @@ public class MovieActivity extends AppCompatActivity {
         } else {
             Log.e(TAG, "Missing token. Filmap API requests won't work!!!");
         }
+
+
+        setUpLocationServices();
+    }
+
+    public void setUpLocationServices() {
+        // Request location updates.
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        } catch (SecurityException e) {
+            Log.e(TAG, e.getMessage());
+        }
+
+
+        // Try to get the last know location for the user while it doesn't receive a location update.
+        try {
+            Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (lastKnownLocation != null) {
+                lat = lastKnownLocation.getLatitude();
+                lng = lastKnownLocation.getLongitude();
+            } else {
+                Log.e(TAG, "Last known location is null...");
+            }
+        } catch (SecurityException e) {}
     }
 
     @Override
@@ -122,6 +175,15 @@ public class MovieActivity extends AppCompatActivity {
 
             params.put("omdb", filmOmdbId);
             params.put("watched", (watchAction ? "1" : "0"));
+
+            // If lat and lng is present...
+            if (lat != null && lng != null) {
+                params.put("lat", lat);
+                params.put("lng", lng);
+            }
+
+            Log.i(TAG, "Lat|Lng: " + String.valueOf(lat) + " | " + String.valueOf(lng));
+
         } else {
             // Film already saved, just mark as watched
             endpoint = "films/" + filmOmdbId + "/watch?token=" + apiToken;
