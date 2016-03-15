@@ -204,7 +204,7 @@ public class FilmsFragment extends Fragment {
                     int length = searchResults.length();
                     if (length > 0) {
                         mProgress.setVisibility(View.VISIBLE);
-                        mProgressIncrement = 100 / (length * 2);
+                        mProgressIncrement = (int) Math.ceil(100.0 / (length * 2));
                         for (int i = 0; i < length; i++) {
                             JSONObject obj = searchResults.getJSONObject(i);
                             FilmapFilm film = gson.fromJson(obj.toString(), FilmapFilm.class);

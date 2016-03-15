@@ -34,4 +34,7 @@
     <string name="title_activity_near">Near</string>
     <string name="title_activity_location">LocationActivity</string>
 
+    <!-- Google-->
+    <string name="google_app_id">951200351805</string>
+
 </resources>
