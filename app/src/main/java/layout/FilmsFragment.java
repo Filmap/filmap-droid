@@ -3,7 +3,6 @@ package layout;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,7 +16,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.filmap.filmap.MainActivity;
 import com.filmap.filmap.MovieActivity;
 import com.filmap.filmap.OMDBFilmsAdapter;
 import com.filmap.filmap.R;
@@ -52,6 +50,7 @@ public class FilmsFragment extends Fragment {
     private final String TAG = "FilmsFragment";
 
     private String token;
+    private String token2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxOCIsImlzcyI6Imh0dHA6XC9cL2FwaS5maWxtYXAubGFicy5nYVwvYXV0aGVudGljYXRlIiwiaWF0IjoxNDU3OTEyNDA3LCJleHAiOjE0NTg1MTcyMDcsIm5iZiI6MTQ1NzkxMjQwNywianRpIjoiOWIwOWYzOGE3NTNiNjY2MzM1NzM4N2EwZTkyNzhjZTUifQ.zSlFD2WCnzfowdz6pq_YiFpYL4XCF5MvH7RIML181S8";
     private ListView listView;
     private TextView errorTextView;
     private OMDBFilmsAdapter adapter;
@@ -140,13 +139,6 @@ public class FilmsFragment extends Fragment {
 
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFilmsFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -179,7 +171,6 @@ public class FilmsFragment extends Fragment {
     }
 
     protected void getFilms() {
-        String token2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxOCIsImlzcyI6Imh0dHA6XC9cL2FwaS5maWxtYXAubGFicy5nYVwvYXV0aGVudGljYXRlIiwiaWF0IjoxNDU3OTEyNDA3LCJleHAiOjE0NTg1MTcyMDcsIm5iZiI6MTQ1NzkxMjQwNywianRpIjoiOWIwOWYzOGE3NTNiNjY2MzM1NzM4N2EwZTkyNzhjZTUifQ.zSlFD2WCnzfowdz6pq_YiFpYL4XCF5MvH7RIML181S8";
         // Set post params
         RequestParams params = new RequestParams();
         params.put("token", token2);
@@ -198,6 +189,7 @@ public class FilmsFragment extends Fragment {
 
                     int length = searchResults.length();
                     if (length > 0) {
+                        mProgress.setVisibility(View.VISIBLE);
                         mProgressIncrement = 100 / (length * 2);
                         for (int i = 0; i < length; i++) {
                             JSONObject obj = searchResults.getJSONObject(i);
@@ -208,9 +200,6 @@ public class FilmsFragment extends Fragment {
                             insertFromOMDB(film.getOmdb());
                         }
                     } else {
-                        // No films
-                        mProgress.setProgress(100);
-                        mProgress.setVisibility(View.GONE);
                         errorTextView.setText(getResources().getString(R.string.error_no_films));
                         errorTextView.setVisibility(View.VISIBLE);
                     }
@@ -249,7 +238,8 @@ public class FilmsFragment extends Fragment {
                         Log.i(TAG, "Film " + film.getTitle() + " inserted");
                     }
                     Log.i(TAG, "Progress is " + mProgressStatus);
-                    if (mProgressStatus == 100) {
+                    if (mProgressStatus >= 100) {
+                        mProgressStatus = 0;
                         mProgress.setVisibility(View.GONE);
                     }
 

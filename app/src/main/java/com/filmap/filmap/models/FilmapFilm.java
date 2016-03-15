@@ -6,46 +6,38 @@ package com.filmap.filmap.models;
 
 public class FilmapFilm {
     private String id;
+
+    public String getId() { return this.id; }
+
+    public void setId(String id) { this.id = id; }
+
     private String omdb;
+
+    public String getOmdb() { return this.omdb; }
+
+    public void setOmdb(String omdb) { this.omdb = omdb; }
+
     private String user_id;
-    private boolean watched;
 
-    public FilmapFilm(String id, String omdb, String user_id, boolean watched) {
-        this.id = id;
-        this.omdb = omdb;
-        this.user_id = user_id;
-        this.watched = watched;
-    }
+    public String getUserId() { return this.user_id; }
 
-    public String getId() {
-        return id;
-    }
+    public void setUserId(String user_id) { this.user_id = user_id; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    private String watched;
 
-    public String getOmdb() {
-        return omdb;
-    }
+    public String getWatched() { return this.watched; }
 
-    public void setOmdb(String omdb) {
-        this.omdb = omdb;
-    }
+    public void setWatched(String watched) { this.watched = watched; }
 
-    public String getUser_id() {
-        return user_id;
-    }
+    private String created_at;
 
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
-    }
+    public String getCreatedAt() { return this.created_at; }
 
-    public boolean isWatched() {
-        return watched;
-    }
+    public void setCreatedAt(String created_at) { this.created_at = created_at; }
 
-    public void setWatched(boolean watched) {
-        this.watched = watched;
-    }
+    private String updated_at;
+
+    public String getUpdatedAt() { return this.updated_at; }
+
+    public void setUpdatedAt(String updated_at) { this.updated_at = updated_at; }
 }
