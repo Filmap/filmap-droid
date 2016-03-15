@@ -3,6 +3,7 @@
     package="com.filmap.filmap">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -23,7 +24,6 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".SignInActivity" />
         <activity android:name=".MovieActivity" />
-        <activity android:name=".ListMovies"></activity>
     </application>
 
 </manifest>

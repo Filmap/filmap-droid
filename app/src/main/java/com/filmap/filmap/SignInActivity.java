@@ -25,6 +25,7 @@ public class SignInActivity extends AppCompatActivity {
     public static final String SETTINGS_NAME = "Settings";
     private static final String TAG = "SignIn";
 
+    // Editable fields...
     private EditText etEmail;
     private EditText etPassword;
 
@@ -33,6 +34,7 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        // Getting that shit ready.
         etEmail = (EditText) findViewById(R.id.etEmail);
         etPassword = (EditText) findViewById(R.id.etPassword);
     }
@@ -40,8 +42,8 @@ public class SignInActivity extends AppCompatActivity {
 
     public void signInClick(View v) {
         Log.i(TAG, "signInClick");
+        // Try sign in
         signIn(etEmail.getText().toString(), etPassword.getText().toString());
-
     }
 
     private void signIn(String email, String password) {
@@ -55,10 +57,10 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, String res) {
                 // Called when response HTTP status is "200 OK"
-
                 try {
                     JSONObject mainObject = new JSONObject(res);
 
+                    // Check if the request returned an auth token
                     if (mainObject.has("token")) {
                         String token = mainObject.getString("token");
                         String email = mainObject.getString("email");
@@ -66,7 +68,7 @@ public class SignInActivity extends AppCompatActivity {
 
                         Log.i(TAG, token);
 
-                        // save token in shared preferences
+                        // Save token in shared preferences
                         SharedPreferences sharedPref = getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("token", token);
@@ -74,8 +76,9 @@ public class SignInActivity extends AppCompatActivity {
                         editor.putString("email", email);
                         editor.apply();
 
+                        // Check if the token was saved.
                         if (sharedPref.contains("token")) {
-                            Log.i(TAG, "IT HAS TOKEN!");
+                            Log.i(TAG, "Token saved. User can use the app now!");
 
                             // Finish this activity and let the app do it's job
                             finish();
@@ -85,6 +88,7 @@ public class SignInActivity extends AppCompatActivity {
                         //showMessage(token);
                     } 
                 } catch (Exception e) {
+                    // Connection error.
                     System.out.println(e.getMessage());
                     Log.i(TAG, "Connection error");
                     showMessage("Connection error. Please make sure you have an active internet connection and try again.");
@@ -93,6 +97,7 @@ public class SignInActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
+                // Invalid credentials.
                 Log.i(TAG, "Failure, invalid creds");
 
                 etPassword.setText(""); // Empty the password field.
@@ -109,6 +114,7 @@ public class SignInActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // Display a toast message.
     public void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
