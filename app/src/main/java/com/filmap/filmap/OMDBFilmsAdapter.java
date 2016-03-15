@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 /**
  * Created by ivanilson on 2016-03-14.
+ * Adapter to create a list item
  */
 public class OMDBFilmsAdapter extends ArrayAdapter<OMDBFilm> {
 

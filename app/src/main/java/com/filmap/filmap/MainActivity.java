@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -22,9 +23,6 @@ import android.widget.TextView;
 import com.filmap.filmap.utils.MD5Util;
 import com.squareup.picasso.Picasso;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import layout.FilmsFragment;
 import layout.SearchFragment;
 
@@ -32,9 +30,13 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         FilmsFragment.OnFragmentInteractionListener, SearchFragment.OnFragmentInteractionListener {
 
+    // For showing user info.
     private TextView navHeaderName;
     private TextView navHeaderEmail;
     private ImageView ivGravatar;
+
+    // For logging...
+    private final String TAG = "MainActivity";
 
     // Fragments
     FilmsFragment filmsFragment;
@@ -67,18 +69,11 @@ public class MainActivity extends AppCompatActivity
 
         View header = navigationView.getHeaderView(0);
 
+        // Set up components for interaction.
         navHeaderName = (TextView) header.findViewById(R.id.navHeaderName);
         navHeaderEmail = (TextView) header.findViewById(R.id.navHeaderEmail);
         ivGravatar = (ImageView) header.findViewById(R.id.ivGravatar);
 
-        //navHeaderEmail.setText("email@goeshere.com");
-
-        //setContentView(R.layout.activity_main);
-
-
-        //navHeaderName.setText("Name");
-
-       // Log.d("PROPRETIES", "PROPRETIES");
     }
 
     @Override
@@ -90,30 +85,9 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        SharedPreferences sharedPref = getSharedPreferences(SignInActivity.SETTINGS_NAME,
-                Context.MODE_PRIVATE);
-
-        // verify if the user is logged in, if not, call sign in activity
-        if (! sharedPref.contains("token")) {
-            System.out.println("CAN I HAS TOKEN PLZ!");
-            Intent intent = new Intent(this, SignInActivity.class);
-            startActivity(intent);
-        } else {
-            // handle displaying profile and gravatar stuff
-            String name = sharedPref.getString("name", "");
-            String email = sharedPref.getString("email", "").toLowerCase();
-
-            navHeaderEmail.setText(email);
-            navHeaderName.setText(name);
-
-            String hash = MD5Util.md5(email.trim());
-
-            System.out.println(hash);
-
-            Picasso.with(this).load("http://www.gravatar.com/avatar/" + hash + "?s=400").
-                    into(ivGravatar);
-            System.out.println("WE HAS A TOKENS!");
-        }
+        // Check if there is an authenticated user.
+        // If not, show login screen.
+        checkAuth();
     }
 
     @Override
@@ -153,63 +127,102 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+            getSupportActionBar().setTitle("Near Me");
         if (id == R.id.nav_near_me) {
+            // Show map with nearby movies.
             Intent intent = new Intent(this, NearActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_search) {
             // Search for a movie
 
-
             // We have to save the fragment instead of creating a new one every time you go in and out
+            // Use replace instead of add, or it will display all fragments at the same time
+            // And they will overlap each other
             if (searchFragment == null) {
                 searchFragment = new SearchFragment();
             }
-
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, searchFragment).commit();
+            getSupportActionBar().setTitle("Search");
 
         } else if (id == R.id.nav_my_list) {
-            // Use replace instead of add, or it will display all fragments at the same time
-            // And they will overlap each other
-
+            // Display the list of movies of the user.
             if (filmsFragment == null) {
                 filmsFragment = new FilmsFragment();
             }
-
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, filmsFragment).commit();
-
+            getSupportActionBar().setTitle("My List");
         } else if (id == R.id.nav_manage) {
             // Settings
+            getSupportActionBar().setTitle("Settings");
         } else if (id == R.id.nav_sign_out) {
-            // remove token and show login screen
-            System.out.println("SIGNING OUT");
-
-            // Remove token from shared preferences.
-            SharedPreferences sharedPref = getSharedPreferences(SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-
-            editor.remove("token");
-            editor.remove("name");
-            editor.remove("email");
-            editor.commit();
-
-            if (! sharedPref.contains("token")) {
-                System.out.println("CAN I HAS TOKEN PLZ!");
-                Intent intent = new Intent(this, SignInActivity.class);
-                startActivity(intent);
-            } else {
-                System.out.println("WE HAS A TOKENS! IUUUPIIII!");
-
-            }
-
-
+            doLogout();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    // Check if there is an authenticated user.
+    // If not, show login screen.
+    private void checkAuth() {
+        // Get a shared preferences instance.
+        SharedPreferences sharedPref = getSharedPreferences(SignInActivity.SETTINGS_NAME,
+                Context.MODE_PRIVATE);
+
+        // Check if there is an api token in the shared preferences...
+        if (sharedPref.contains("token")) {
+            // There is a token.
+            Log.i(TAG, "Token found. Authenticating.");
+
+            // Display user info in menu bar.
+            String name = sharedPref.getString("name", "");
+            String email = sharedPref.getString("email", "").toLowerCase();
+
+            navHeaderEmail.setText(email);
+            navHeaderName.setText(name);
+
+            // Get an md5 of the user email to get their Gravatar profile pic.
+            String hash = MD5Util.md5(email.trim());
+            Log.i(TAG, "Gravatar hash: " + hash);
+            Picasso.with(this).load("http://www.gravatar.com/avatar/" + hash + "?s=400").into(ivGravatar);
+        } else {
+            // No token.
+            Log.i(TAG, "Token not found. Open authentication screen.");
+
+            Intent intent = new Intent(this, SignInActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    // Log the user out of the application.
+    private void doLogout() {
+        // remove token and show login screen
+        Log.i(TAG, "Signing out...");
+
+        // Remove token and user info from shared preferences.
+        SharedPreferences sharedPref = getSharedPreferences(SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove("token");
+        editor.remove("name");
+        editor.remove("email");
+        editor.commit();
+
+        // Empty fragments to erase current user's data.
+        filmsFragment = null;
+        searchFragment = null;
+
+        // If the token was erased.
+        if (! sharedPref.contains("token")) {
+            // Open sign in intent.
+            Log.i(TAG, "Logged out.");
+            Intent intent = new Intent(this, SignInActivity.class);
+            startActivity(intent);
+        } else {
+            Log.e(TAG, "User still has a token. Error logging out.");
+        }
     }
 
     @Override

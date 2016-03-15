@@ -1,27 +1,32 @@
 package com.filmap.filmap;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.filmap.filmap.models.FilmapFilm;
 import com.filmap.filmap.models.OMDBFilm;
 import com.filmap.filmap.rest.FilmapRestClient;
 import com.filmap.filmap.rest.OMDBRestClient;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.squareup.picasso.Picasso;
-
-
-
 import cz.msebera.android.httpclient.Header;
+
 
 public class MovieActivity extends AppCompatActivity {
 
@@ -34,19 +39,47 @@ public class MovieActivity extends AppCompatActivity {
     private TextView tvMoviePlot;
     private Button btnWatchFilm;
     private Button btnWatchLater;
+    private ScrollView svMovieDetails;
 
-    private Boolean hasWatched = false;
+    // For keeping track of the current movie state.
+    private Boolean watchLater = false;
     private Boolean isWatched = false;
+    private String filmOmdbId;
 
-    private String film_omdb_id;
-    private final String TAG = "MovieActivity";
-    private String token2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxOCIsImlzcyI6Imh0dHA6XC9cL2FwaS5maWxtYXAubGFicy5nYVwvYXV0aGVudGljYXRlIiwiaWF0IjoxNDU3OTEyNDA3LCJleHAiOjE0NTg1MTcyMDcsIm5iZiI6MTQ1NzkxMjQwNywianRpIjoiOWIwOWYzOGE3NTNiNjY2MzM1NzM4N2EwZTkyNzhjZTUifQ.zSlFD2WCnzfowdz6pq_YiFpYL4XCF5MvH7RIML181S8";
+    // Misc...
+    private final String TAG = "MovieActivity"; // For logging.
+    private String apiToken; // For api calls.
+
+    // Location...
+    private Double lat;
+    private Double lng;
+
+    // Location listener to update the user's location.
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            //your code here
+            lat = location.getLatitude();
+            lng = location.getLongitude();
+            Log.i(TAG, "Updated location received...");
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+        @Override
+        public void onProviderEnabled(String provider) {}
+
+        @Override
+        public void onProviderDisabled(String provider) {}
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
 
+        // Set up for view manipulation.
         ivMoviePoster = (ImageView) findViewById(R.id.ivMoviePoster);
         tvMovieTitle = (TextView) findViewById(R.id.tvMovieTitle);
         tvMovieYear = (TextView) findViewById(R.id.tvMovieYear);
@@ -56,6 +89,43 @@ public class MovieActivity extends AppCompatActivity {
         tvMoviePlot = (TextView) findViewById(R.id.tvMoviePlot);
         btnWatchFilm = (Button) findViewById(R.id.btnWatchFilm);
         btnWatchLater = (Button) findViewById(R.id.btnWatchLater);
+        svMovieDetails = (ScrollView) findViewById(R.id.svMovieDetails);
+
+        // Get api token from shared preferences
+        SharedPreferences sharedPref = getSharedPreferences(SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE);
+
+        if (sharedPref.contains("token")) {
+            apiToken = sharedPref.getString("token", "");
+            Log.i(TAG, "API Token: " + apiToken);
+        } else {
+            Log.e(TAG, "Missing token. Filmap API requests won't work!!!");
+        }
+
+
+        setUpLocationServices();
+    }
+
+    public void setUpLocationServices() {
+        // Request location updates.
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        } catch (SecurityException e) {
+            Log.e(TAG, e.getMessage());
+        }
+
+
+        // Try to get the last know location for the user while it doesn't receive a location update.
+        try {
+            Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (lastKnownLocation != null) {
+                lat = lastKnownLocation.getLatitude();
+                lng = lastKnownLocation.getLongitude();
+            } else {
+                Log.e(TAG, "Last known location is null...");
+            }
+        } catch (SecurityException e) {}
     }
 
     @Override
@@ -63,141 +133,185 @@ public class MovieActivity extends AppCompatActivity {
         super.onResume();
         Intent thisIntent = getIntent();
 
-        /*Log.d(TAG, )
-        */
+        // Hide scroll view while loading content.
+        svMovieDetails.setVisibility(View.INVISIBLE);
 
+        // Get movie ID from previous activity.
         if (thisIntent.hasExtra("omdbid")) {
-            film_omdb_id = thisIntent.getStringExtra("omdbid");
-            getMovieById(film_omdb_id);
+            filmOmdbId = thisIntent.getStringExtra("omdbid");
+            displayMovieInfo(filmOmdbId);
         }
 
-        //getMovieById("tt0892769");
     }
 
+    // Watching button clicked.
     public void onWatchFilmClicked(View v){
         Log.i(TAG, "watchFilm Button!");
-        watchFilm(true);
+        // Save film to list.
+        saveFilm(true);
     }
 
+    // Watch later button clicked.
     public void onWatchLaterClicked(View v){
-        watchFilm(false);
+        // Save film to watch later.
+        saveFilm(false);
     }
 
-    public void watchFilm(Boolean watchAction){
+    // Saves a film or updates an existing one.
+    public void saveFilm(final Boolean watchAction){
+
+        // Http params for post.
         RequestParams params = new RequestParams();
-        params.put("token", token2);
 
-        if (watchAction) {
+        Log.i(TAG, "Saving film...");
 
-            if (hasWatched )
-            Log.i(TAG, "watchFilm!");
+        // Api endpoint.
+        String endpoint;
 
-            params.put("omdb", film_omdb_id);
+        // Check if the film was marked as watch later.
+        if (! watchLater) {
+            // Film not saved yet, save movie.
+            endpoint = "films?token=" + apiToken;
+
+            params.put("omdb", filmOmdbId);
             params.put("watched", (watchAction ? "1" : "0"));
 
-            btnWatchFilm.setEnabled(false);
-            btnWatchLater.setEnabled(false);
+            // If lat and lng is present...
+            if (lat != null && lng != null) {
+                params.put("lat", lat);
+                params.put("lng", lng);
+            }
 
-            FilmapRestClient.post("films", params, new TextHttpResponseHandler() {
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                    Log.e(TAG, "Failure saving film " + responseString);
-                }
+            Log.i(TAG, "Lat|Lng: " + String.valueOf(lat) + " | " + String.valueOf(lng));
 
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                    Log.i(TAG, "Film saved: " + responseString);
-                }
-            });
-
-        } else { // watch later
-            Log.i(TAG, "watch Later!");
-            btnWatchLater.setEnabled(false);
-
-            FilmapRestClient.get("films/" + film_omdb_id + "/watch", params, new TextHttpResponseHandler() {
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                    Log.e(TAG, "Failure watching film");
-                }
-
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                    Log.i(TAG, "Film watched");
-                }
-            });
-
+        } else {
+            // Film already saved, just mark as watched
+            endpoint = "films/" + filmOmdbId + "/watch?token=" + apiToken;
         }
-        // Send request
+
+        // Call api to save or update a movie.
+        FilmapRestClient.post(endpoint, params, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                // Oops...
+                Log.e(TAG, "Error saving film: " + responseString);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                // 200 OK!
+                Log.i(TAG, "Film saved: " + responseString);
+
+                // Always disable watch later button.
+                disableWatchLaterButton();
+
+                // If the movie was marked as watched
+                if (watchAction) {
+                    // Disable watched button
+                    disableWatchedButton();
+                }
+            }
+        });
+
     }
 
-    public void getMovieById(String id) {
+    // Get movie from OMDB api and populate fields on the screen.
+    public void displayMovieInfo(String id) {
 
         OMDBRestClient.getFilm(id, new TextHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, String res) {
-                // called when response HTTP status is "200 OK"
+                // 200 OK!
 
-                System.out.println(res);
+                Log.i(TAG, res);
 
+                // Parse JSON to an OMDBFilm object.
                 Gson gson = new GsonBuilder().create();
-                // Define Response class to correspond to the JSON response returned
                 OMDBFilm omdbfilm = gson.fromJson(res, OMDBFilm.class);
 
-                System.out.println(omdbfilm.toString());
+                Log.i(TAG, omdbfilm.toString());
 
-                film_omdb_id = omdbfilm.getImdbID();
+                // Save the id for later use. (Mark as saved or watched).
+                filmOmdbId = omdbfilm.getImdbID();
 
+                // Populate fields on the screen.
                 tvMovieTitle.setText(omdbfilm.getTitle());
                 tvMovieYear.setText(omdbfilm.getYear());
                 tvMovieGenre.setText(omdbfilm.getGenre());
                 tvMovieRating.setText(String.format("%s/10", omdbfilm.getImdbRating()));
                 tvMovieDirector.setText(omdbfilm.getDirector());
                 tvMoviePlot.setText(omdbfilm.getPlot());
-
+                // Display movie poster on the screen.
                 setMovieImage(omdbfilm.getPoster());
+
+                // Content is loaded, we can show it.
+                svMovieDetails.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
                 // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                Log.e(TAG, "API error: " + res);
             }
         });
 
+        // Now, we will get the movie details especific for the user.
+        // Ex. Movie is watched or saved to watch later.
 
         // Set post params
         RequestParams params = new RequestParams();
-        params.put("token", token2);
-        Log.i(TAG, token2);
+        params.put("token", apiToken);
 
-        // Make a post request to authenticate
+        // Get movie details from Filmap
         FilmapRestClient.get("films/" + id, params, new TextHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, String res) {
-                // Called when response HTTP status is "200 OK"
+                // We found a movie.
                 Log.i(TAG, "Film found: " + res);
+
+                // Parse json to a FilmapFilm class
                 Gson gson = new GsonBuilder().create();
-                // Define Response class to correspond to the JSON response returned
                 FilmapFilm film = gson.fromJson(res, FilmapFilm.class);
-                Log.i(TAG, "FILM: " + film.getWatched());
-                btnWatchLater.setEnabled(false);
-                hasWatched = true;
+
+                Log.i(TAG, "Film is watched: " + film.getWatched());
+
+                // If the movie is saved on the api, it is at least marked to watch later.
+                // So we can disable the watch later button and mark watchLater as true.
+                disableWatchLaterButton();
+
+                // If the movie was already marked as watched.
                 isWatched = film.getWatched().equals("1");
+
                 if (isWatched) {
-                    btnWatchFilm.setEnabled(false);
+                    disableWatchedButton();
                     Log.i(TAG, "Film watched");
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                Log.i(TAG, "User hasn't watched yet");
-
-//                showMessage("Invalid credentials. Please try again.");
+                // If the request fails, the movie is not saved yet.
+                Log.i(TAG, "User hasn't saved this movie yet");
             }
         });
 
     }
 
+    // Disable watch later button.
+    private void disableWatchLaterButton() {
+        btnWatchLater.setEnabled(false);
+        btnWatchLater.setText("In your list");
+        watchLater = true;
+    }
+
+    // Disable Watching button.
+    private void disableWatchedButton() {
+        btnWatchFilm.setEnabled(false);
+        btnWatchFilm.setText("Watched");
+        isWatched = true;
+    }
+
+    // Render poster on screen.
     private void setMovieImage(String url) {
         Picasso.with(this).load(url).into(ivMoviePoster);
     }
