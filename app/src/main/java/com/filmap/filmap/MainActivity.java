@@ -155,9 +155,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_near_me) {
-            // Handle the camera action
-            //Intent intent = new Intent(this, ListMovies.class);
-            //startActivity(intent);
+            Intent intent = new Intent(this, NearActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_search) {
             // Search for a movie
 
