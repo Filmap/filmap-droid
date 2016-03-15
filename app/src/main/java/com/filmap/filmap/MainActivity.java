@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity
         navHeaderName = (TextView) header.findViewById(R.id.navHeaderName);
         navHeaderEmail = (TextView) header.findViewById(R.id.navHeaderEmail);
         ivGravatar = (ImageView) header.findViewById(R.id.ivGravatar);
+        goNearFilmsFragment();
     }
 
     @Override
@@ -120,15 +121,7 @@ public class MainActivity extends AppCompatActivity
 //            getSupportActionBar().setTitle("Near Me");
         if (id == R.id.nav_near_me) {
             // Show map with nearby movies.
-//            Intent intent = new Intent(this, NearActivity.class);
-//            startActivity(intent);
-
-            if (nearFragment == null) {
-                nearFragment = new NearFragment();
-            }
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, nearFragment).commit();
-            getSupportActionBar().setTitle("Near");
+            goNearFilmsFragment();
         } else if (id == R.id.nav_search) {
             // Search for a movie
             goSearchFragment();
@@ -207,6 +200,15 @@ public class MainActivity extends AppCompatActivity
         } else {
             Log.e(TAG, "User still has a token. Error logging out.");
         }
+    }
+
+    private void goNearFilmsFragment() {
+        if (nearFragment == null) {
+            nearFragment = new NearFragment();
+        }
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, nearFragment).commit();
+        getSupportActionBar().setTitle("Near");
     }
 
     private void goMyListFragment() {
