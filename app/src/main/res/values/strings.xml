@@ -26,7 +26,7 @@
     <string name="error_no_films">You have no films</string>
 
     <!-- Film activty -->
-    <string name="button_watch">Watch</string>
+    <string name="button_watch">Watching</string>
     <string name="button_watch_later">Watch later</string>
 
     <!-- TODO: Remove or change this placeholder text -->

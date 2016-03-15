@@ -143,6 +143,7 @@ public class SearchFragment extends Fragment {
         });
     }
 
+    // Show movie throught the movie screen.
     public void showMovie(String omdbid) {
         Intent intent = new Intent(this.getContext(), MovieActivity.class);
         intent.putExtra("omdbid", omdbid);
