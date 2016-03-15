@@ -46,6 +46,10 @@ public class NearFragment extends Fragment {
     // Misc
     private final String TAG = "Near";
 
+    // Current location
+    private Double lat;
+    private Double lng;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
