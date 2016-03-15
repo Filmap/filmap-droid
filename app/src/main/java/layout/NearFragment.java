@@ -1,21 +1,26 @@
-package com.filmap.filmap;
+package layout;
+
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-
+import com.filmap.filmap.R;
 import com.filmap.filmap.models.FilmapNearFilm;
 import com.filmap.filmap.models.OMDBFilm;
 import com.filmap.filmap.rest.FilmapRestClient;
 import com.filmap.filmap.rest.OMDBRestClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -32,68 +37,61 @@ import java.util.Set;
 
 import cz.msebera.android.httpclient.Header;
 
-public class NearActivity extends FragmentActivity implements OnMapReadyCallback {
 
-
-
-    private GoogleMap mMap;
+public class NearFragment extends Fragment {
+    MapView mMapView;
+    private GoogleMap googleMap;
     private Set<FilmMarker> filmTargets = new HashSet<FilmMarker>();
 
     // Misc
     private final String TAG = "Near";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_near);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // inflat and return the layout
+        View v = inflater.inflate(R.layout.fragment_near, container,
+                false);
+        mMapView = (MapView) v.findViewById(R.id.mapFragment);
+        mMapView.onCreate(savedInstanceState);
 
+        mMapView.onResume();// needed to get the map to display immediately
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        try {
+            MapsInitializer.initialize(getActivity().getApplicationContext());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        googleMap = mMapView.getMap();
 
         // Get current location
         // Natal: -5.810184, -35.192427
         // Cali: 37.385241,-122.096532
-         LatLng currentLocation = new LatLng( -5.810184, -35.192427);
+        LatLng currentLocation = new LatLng( -5.810184, -35.192427);
         // Add marker
-         mMap.addMarker(new MarkerOptions().position(currentLocation).title("You"));
-         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+        googleMap.addMarker(new MarkerOptions().position(currentLocation).title("You"));
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(currentLocation).zoom(12).build();
+
+        googleMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
+
         // Get near films
-         nearFilms(10.0, currentLocation.latitude, currentLocation.longitude);
+        nearFilms(10.0, currentLocation.latitude, currentLocation.longitude);
 
-
-
-        // Add a marker in Sydney and move the camera
-
-//        LatLng sydney = new LatLng(-34, 151);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        // Perform any camera updates here
+        return v;
     }
 
     private void addFilmMarker(String omdbID, Double lat, Double lng, String posterUrl) {
         LatLng film_location = new LatLng(lat, lng);
 
-        Marker m = mMap.addMarker(new MarkerOptions().position(film_location));
+        Marker m = googleMap.addMarker(new MarkerOptions().position(film_location));
         FilmMarker fm = new FilmMarker(m);
         filmTargets.add(fm);
-        Picasso.with(getApplicationContext())
+        Picasso.with(getContext())
                 .load(posterUrl)
                 .resize(60,100)
                 .onlyScaleDown()
@@ -185,6 +183,30 @@ public class NearActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mMapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
     class FilmMarker implements Target {
         private Marker m;
 
@@ -193,7 +215,7 @@ public class NearActivity extends FragmentActivity implements OnMapReadyCallback
         @Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             m.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
             filmTargets.remove(this);
-            Log.i(TAG, " @+ Set bitmap for "+m.getTitle()+" PT size: #"+filmTargets.size());
+            Log.i(TAG, " @+ Set bitmap for " + m.getTitle() + " PT size: #" + filmTargets.size());
         }
 
         @Override public void onBitmapFailed(Drawable errorDrawable) {
