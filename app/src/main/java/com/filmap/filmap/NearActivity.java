@@ -68,7 +68,9 @@ public class NearActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         // Get current location
-         LatLng currentLocation = new LatLng(37.385241,-122.096532);
+        // Natal: -5.810184, -35.192427
+        // Cali: 37.385241,-122.096532
+         LatLng currentLocation = new LatLng( -5.810184, -35.192427);
         // Add marker
          mMap.addMarker(new MarkerOptions().position(currentLocation).title("You"));
          mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
