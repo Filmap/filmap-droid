@@ -130,6 +130,8 @@ public class MainActivity extends AppCompatActivity
             getSupportActionBar().setTitle("Near Me");
         if (id == R.id.nav_near_me) {
             // Show map with nearby movies.
+            Intent intent = new Intent(this, NearActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_search) {
             // Search for a movie
 
