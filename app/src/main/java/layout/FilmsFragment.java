@@ -47,12 +47,12 @@ public class FilmsFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    // Tag for logging.
     private final String TAG = "FilmsFragment";
 
-    private String token;
-    private String token2 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxOCIsImlzcyI6Imh0dHA6XC9cL2FwaS5maWxtYXAubGFicy5nYVwvYXV0aGVudGljYXRlIiwiaWF0IjoxNDU3OTEyNDA3LCJleHAiOjE0NTg1MTcyMDcsIm5iZiI6MTQ1NzkxMjQwNywianRpIjoiOWIwOWYzOGE3NTNiNjY2MzM1NzM4N2EwZTkyNzhjZTUifQ.zSlFD2WCnzfowdz6pq_YiFpYL4XCF5MvH7RIML181S8";
     private ListView listView;
     private TextView errorTextView;
+    private String apiToken;
     private OMDBFilmsAdapter adapter;
 
     private ProgressBar mProgress;
@@ -87,14 +87,28 @@ public class FilmsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences sharedPref = this.getActivity().getSharedPreferences(
-                SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE
-        );
-        try {
-            token = sharedPref.getString("token", "");
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        //SharedPreferences sharedPref = this.getActivity().getSharedPreferences(
+        //        SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE
+        //);
+//        try {
+//            token = sharedPref.getString("token", "");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        // Get api token from shared preferences
+        SharedPreferences sharedPref = this.getContext().getSharedPreferences(SignInActivity.SETTINGS_NAME, Context.MODE_PRIVATE);
+
+
+        if (sharedPref.contains("token")) {
+            apiToken = sharedPref.getString("token", "");
+            Log.i(TAG, "API Token: " + apiToken);
+        } else {
+            Log.e(TAG, "Missing token. Filmap API requests won't work!!!");
         }
+
+
         ArrayList<OMDBFilm> filmsArray = new ArrayList<OMDBFilm>();
         adapter = new OMDBFilmsAdapter(this.getContext(), filmsArray);
     }
@@ -173,8 +187,8 @@ public class FilmsFragment extends Fragment {
     protected void getFilms() {
         // Set post params
         RequestParams params = new RequestParams();
-        params.put("token", token2);
-        Log.i(TAG, token2);
+        params.put("token", apiToken);
+        Log.i(TAG, apiToken);
 
         // Make a post request to authenticate
         FilmapRestClient.get("films", params, new TextHttpResponseHandler() {
